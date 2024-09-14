@@ -3,6 +3,10 @@ const axios = require("axios");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 
+const { Ollama } = require('ollama');
+
+const ollama = new Ollama({ host: 'http://localhost:11434' });
+
 const app = express();
 const PORT = 8000;
 
@@ -42,6 +46,48 @@ app.post("/compile", async (req, res) => {
     res.json({ output: stderr || stdout });
   } catch (error) {
     res.status(500).json({ output: `Error: ${error.message}` });
+  }
+});
+
+
+app.post("/chat", async (req, res) => {
+  // try {
+  //   const userMessage = req.body.message;    
+
+  //   // Send the message to Ollama via HTTP request
+  //   const output = await ollama.generate({
+  //     model: 'gemma:2b',
+  //     prompt: userMessage,
+  //     stream: false
+  //   });
+
+  //   // Extract the response from Ollama
+  //   const ollamaMessage = output.message.content;
+
+  //   // Send Ollama's response back to the client
+  //   res.json({ response: ollamaMessage });
+  // } catch (error) {
+  //   console.error('Error communicating with Ollama:', error);
+  //   res.status(500).json({ error: 'Failed to process message with Ollama' });
+  // }
+  try {
+    const userMessage = req.body.message;
+
+    // Send the message to Ollama via an HTTP request using axios
+    const response = await axios.post('http://localhost:11434/api/generate', {
+      model: 'gemma:2b',
+      prompt: userMessage,
+      stream: false
+    });
+
+    // Extract the response from Ollama
+    const ollamaMessage = response.data.response;
+
+    // Send Ollama's response back to the client
+    res.json({ response: ollamaMessage });
+  } catch (error) {
+    console.error('Error communicating with Ollama:', error);
+    res.status(500).json({ error: 'Failed to process message with Ollama' });
   }
 });
 
