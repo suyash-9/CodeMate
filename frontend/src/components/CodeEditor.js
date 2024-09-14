@@ -6,7 +6,7 @@ import { python } from "@codemirror/lang-python";
 import { javascript } from "@codemirror/lang-javascript";
 import { dracula } from "@uiw/codemirror-theme-dracula";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-icons/font/bootstrap-icons.css";
+import "bootstrap-icons/font/bootstrap-icons.css"; // Bootstrap Icons
 
 const CodeEditor = () => {
   const [language, setLanguage] = useState("Cpp");
@@ -15,6 +15,7 @@ const CodeEditor = () => {
   const [code, setCode] = useState("");
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState([]);
+  const [loading, setLoading] = useState(false); // <-- Added loading state
 
   const getLanguageSupport = (lang) => {
     switch (lang) {
@@ -55,6 +56,9 @@ const CodeEditor = () => {
       // Add user message to chat
       setChatMessages([...chatMessages, { text: chatInput, sender: "User" }]);
 
+      // Set loading state to true
+      setLoading(true);
+
       try {
         // Make a POST request to the server
         const response = await fetch("http://localhost:8000/chat", {
@@ -81,15 +85,25 @@ const CodeEditor = () => {
 
       // Clear the chat input field
       setChatInput("");
+      // Set loading state to false after response
+      setLoading(false);
     }
   };
 
   return (
-    <div className="container-fluid p-0" style={{ backgroundColor: "#0d1b2a", minHeight: "100vh" }}>
+    <div
+      className="container-fluid p-0"
+      style={{ backgroundColor: "#0d1b2a", minHeight: "100vh" }}
+    >
       <div className="row m-0">
         {/* Logo at the Top */}
-        <div className="col-12 text-center py-3" style={{ backgroundColor: "#1b263b" }}>
-          <h1 className="text-light" style={{ fontFamily: 'monospace' }}>CodeCat</h1>
+        <div
+          className="col-12 text-center py-3"
+          style={{ backgroundColor: "#1b263b" }}
+        >
+          <h1 className="text-light" style={{ fontFamily: "monospace" }}>
+            CodeMate
+          </h1>
         </div>
 
         <div className="col-lg-12 p-3">
@@ -206,10 +220,59 @@ const CodeEditor = () => {
                   style={{ height: "200px", overflowY: "auto" }}
                 >
                   {chatMessages.map((msg, index) => (
-                    <div key={index} className="text-light mb-1">
-                      <strong>{msg.sender}:</strong> {msg.text}
+                    <div
+                      key={index}
+                      className={`text-light mb-1 d-flex ${
+                        msg.sender === "User"
+                          ? "justify-content-end"
+                          : "justify-content-start"
+                      }`}
+                    >
+                      <div
+                        style={{
+                          backgroundColor:
+                            msg.sender === "User" ? "#2d2d2d" : "#44475a",
+                          padding: "10px",
+                          borderRadius: "10px",
+                          maxWidth: "70%",
+                          textAlign: "left",
+                        }}
+                      >
+                        {msg.sender === "User" ? (
+                          <>
+                            <i className="bi bi-person-circle me-2"></i>{" "}
+                            {/* User Icon */}
+                            <strong>{msg.sender}:</strong> {msg.text}
+                          </>
+                        ) : (
+                          <>
+                            <i className="bi bi-robot me-2"></i> {/* AI Icon */}
+                            <strong>{msg.sender}:</strong> {msg.text}
+                          </>
+                        )}
+                      </div>
                     </div>
                   ))}
+
+                  {/* Display loader when fetching AI response */}
+                  {loading && (
+                    <div className="text-light mb-1 d-flex justify-content-start">
+                      <div
+                        style={{
+                          backgroundColor: "#44475a",
+                          padding: "10px",
+                          borderRadius: "10px",
+                          maxWidth: "70%",
+                          textAlign: "left",
+                        }}
+                      >
+                        <i className="bi bi-robot me-2"></i> {/* AI Icon */}
+                        <strong>AI:</strong>{" "}
+                        <span className="spinner-border spinner-border-sm"></span>{" "}
+                        Fetching response...
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="d-flex align-items-center">
                   <input
@@ -224,7 +287,10 @@ const CodeEditor = () => {
                       borderColor: "#44475a",
                     }}
                   />
-                  <button className="btn btn-primary" onClick={handleSendMessage}>
+                  <button
+                    className="btn btn-primary"
+                    onClick={handleSendMessage}
+                  >
                     Send
                   </button>
                 </div>
