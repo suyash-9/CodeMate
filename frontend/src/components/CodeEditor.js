@@ -16,6 +16,7 @@ const CodeEditor = () => {
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState([]);
   const [loading, setLoading] = useState(false); // <-- Added loading state
+  const [outputLoading, setOutputLoading] = useState(false);
 
   const getLanguageSupport = (lang) => {
     switch (lang) {
@@ -36,6 +37,7 @@ const CodeEditor = () => {
       input,
       lang: language,
     };
+    setOutputLoading(true);
     try {
       const response = await fetch("http://localhost:8000/compile", {
         method: "POST",
@@ -48,6 +50,8 @@ const CodeEditor = () => {
       setOutput(result.output);
     } catch (error) {
       setOutput("Error: Unable to compile code.");
+    } finally {
+      setOutputLoading(false); // Set outputLoading to false when the execution completes
     }
   };
 
@@ -66,7 +70,7 @@ const CodeEditor = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ message: chatInput }),
+          body: JSON.stringify({ message: code + '\n' + chatInput }),
         });
 
         const data = await response.json();
@@ -133,11 +137,25 @@ const CodeEditor = () => {
               onClick={handleRun}
               className="btn"
               style={{
-                backgroundColor: "#bd93f9",
+                backgroundColor: "#8a40f5",
                 color: "#f8f8f2",
               }}
+              disabled={outputLoading} // Disable the button while loading
             >
-              <i className="bi bi-play-fill"></i> Run
+              {outputLoading ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                  Executing...
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-play-fill"></i> Run
+                </>
+              )}
             </button>
           </div>
 
@@ -154,6 +172,7 @@ const CodeEditor = () => {
                   backgroundColor: "#0d1b2a",
                   borderRadius: "8px",
                   overflow: "hidden",
+                  textAlign: "left",
                 }}
               />
             </div>
