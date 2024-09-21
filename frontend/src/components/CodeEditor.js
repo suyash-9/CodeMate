@@ -140,6 +140,48 @@ const CodeEditor = () => {
     },
   };
 
+  const renderMessage = (message) => {
+    const parts = message.split(/```/g); // Splits the message by the code block delimiters
+    return parts.map((part, index) => {
+      part = part + "\n";
+      const isCode = index % 2 === 1; // Odd-indexed parts are code blocks
+      return isCode ? (
+        <pre
+          key={index}
+          style={{
+            backgroundColor: darkTheme ? "#2d2d2d" : "#f1f1f1",
+            color: darkTheme ? "#50fa7b" : "#333333",
+            borderRadius: "8px",
+            padding: "15px",
+            margin: "20px 0", // Margin to separate from other parts
+            fontFamily: "'Courier New', monospace",
+            whiteSpace: "pre-wrap",
+            fontSize: "14px",
+            lineHeight: "1.5",
+            overflowX: "auto", // Allows horizontal scrolling if needed,
+            textAlign: "left"
+          }}
+        >
+          {part}
+        </pre>
+      ) : (
+        <p
+          key={index}
+          style={{
+            color: darkTheme ? "#f8f8f2" : "#212529",
+            fontSize: "16px",
+            marginTop: "20px", // Margin ensures space above each paragraph
+            lineHeight: "1.5",
+          }}
+        >
+          {part}
+        </p>
+      );
+    });
+  };
+  
+  
+
   return (
     <div className="container-fluid p-0" style={styles.container}>
       <div className="row m-0">
@@ -274,7 +316,7 @@ const CodeEditor = () => {
                           } me-2`}
                           style={msg.sender === "User" ? styles.icon.user : styles.icon.ai}
                         ></i>
-                        {msg.text}
+                        {renderMessage(msg.text)}
                       </div>
                     </div>
                   ))}

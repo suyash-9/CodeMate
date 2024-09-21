@@ -51,25 +51,6 @@ app.post("/compile", async (req, res) => {
 
 
 app.post("/chat", async (req, res) => {
-  // try {
-  //   const userMessage = req.body.message;    
-
-  //   // Send the message to Ollama via HTTP request
-  //   const output = await ollama.generate({
-  //     model: 'gemma:2b',
-  //     prompt: userMessage,
-  //     stream: false
-  //   });
-
-  //   // Extract the response from Ollama
-  //   const ollamaMessage = output.message.content;
-
-  //   // Send Ollama's response back to the client
-  //   res.json({ response: ollamaMessage });
-  // } catch (error) {
-  //   console.error('Error communicating with Ollama:', error);
-  //   res.status(500).json({ error: 'Failed to process message with Ollama' });
-  // }
   try {
     const userMessage = req.body.message;
 
